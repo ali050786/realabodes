@@ -169,8 +169,10 @@ export function PropertyTypesSection() {
                                     <p className="text-white/80 text-sm mb-4 line-clamp-2">
                                         {type.description}
                                     </p>
-                                    <Button variant="secondary" size="sm" className="w-full bg-white text-primary hover:bg-white/90">
-                                        Explore <ArrowRight className="w-4 h-4 ml-2" />
+                                    <Button variant="secondary" size="sm" className="w-full bg-white text-primary hover:bg-white/90" asChild>
+                                        <Link to={`/projects?category=${type.title.split(' ')[1]}`}>
+                                            Explore <ArrowRight className="w-4 h-4 ml-2" />
+                                        </Link>
                                     </Button>
                                 </div>
                             </div>
@@ -351,8 +353,10 @@ function TextBlock({ data, index }: { data: any, index: number }) {
             </motion.div>
 
             <motion.div variants={linkVariants}>
-                <Button size="lg" className="bg-accent text-primary hover:bg-accent/90 border-0 font-medium">
-                    View {data.title} <ArrowRight className="w-4 h-4 ml-2" />
+                <Button size="lg" className="bg-accent text-primary hover:bg-accent/90 border-0 font-medium" asChild>
+                    <Link to={`/projects?category=${data.title.split(' ')[1]}`}>
+                        View {data.title} <ArrowRight className="w-4 h-4 ml-2" />
+                    </Link>
                 </Button>
             </motion.div>
         </motion.div>

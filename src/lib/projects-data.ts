@@ -122,16 +122,16 @@ export const budgetRanges = [
 
 export const serviceAreas = [
   'All Locations',
+  'Moshi',
+  'Chikhali',
+  'Dehu Nigdi',
+  'Pimple Saudagar',
   'Wakad',
   'Hinjewadi',
   'Baner',
   'Balewadi',
-  'Pimple Saudagar',
   'Ravet',
   'Tathawade',
-  'Punawale',
-  'Chikhali',
-  'Moshi',
 ] as const;
 
 export const commonAmenities: Amenity[] = [

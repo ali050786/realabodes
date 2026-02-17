@@ -94,16 +94,18 @@ export function Header() {
 
           {/* CTA Button */}
           <div className="hidden md:flex items-center gap-4">
-            <Link
-              to="/contact"
-              className={`group flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${isSolid
-                ? 'bg-gradient-gold text-primary-foreground hover:shadow-gold'
-                : 'bg-transparent border border-white text-white hover:bg-white/10'
-                }`}
-            >
-              <span>Get in Touch</span>
-              <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </Link>
+            {location.pathname !== '/contact' && (
+              <Link
+                to="/contact"
+                className={`group flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${isSolid
+                  ? 'bg-gradient-gold text-primary-foreground hover:shadow-gold'
+                  : 'bg-transparent border border-white text-white hover:bg-white/10'
+                  }`}
+              >
+                <span>Get in Touch</span>
+                <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -139,14 +141,16 @@ export function Header() {
                   {item.name}
                 </Link>
               ))}
-              <Link
-                to="/contact"
-                onClick={() => setMobileMenuOpen(false)}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-gold text-primary-foreground rounded-full text-sm font-medium mt-4 w-full justify-center"
-              >
-                <span>Get in Touch</span>
-                <ArrowUpRight className="w-4 h-4" />
-              </Link>
+              {location.pathname !== '/contact' && (
+                <Link
+                  to="/contact"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-gold text-primary-foreground rounded-full text-sm font-medium mt-4 w-full justify-center"
+                >
+                  <span>Get in Touch</span>
+                  <ArrowUpRight className="w-4 h-4" />
+                </Link>
+              )}
             </div>
           </motion.div>
         )}

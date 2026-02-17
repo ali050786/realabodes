@@ -40,13 +40,13 @@ export function Footer() {
                 <Mail className="w-4 h-4" />
                 <span>info@realabodes.in</span>
               </a>
-              <a href="tel:+919876543210" className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors text-sm">
+              <a href="tel:+919175622021" className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors text-sm">
                 <Phone className="w-4 h-4" />
-                <span>+91 9876 543 210</span>
+                <span>+91 9175622021</span>
               </a>
               <div className="flex items-start gap-3 text-muted-foreground text-sm">
                 <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                <span>The Evoq, Wakad<br />Pune, Maharashtra</span>
+                <span>Luxury square, sawata mali mandir road,<br />Jadhavwadi - Chikahli Pune</span>
               </div>
             </div>
           </div>

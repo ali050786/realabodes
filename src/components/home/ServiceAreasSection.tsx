@@ -2,8 +2,7 @@
 import { motion } from 'framer-motion';
 
 const serviceAreas = [
-    'Wakad', 'Hinjewadi', 'Baner', 'Balewadi', 'Pimple Saudagar',
-    'Ravet', 'Tathawade', 'Punawale', 'Chikhali', 'Moshi',
+    'Moshi', 'Chikhali', 'Dehu Nigdi', 'Pimple Saudagar'
 ];
 
 export function ServiceAreasSection() {

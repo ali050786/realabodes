@@ -66,7 +66,7 @@ export default function AboutPage() {
                                         Every project we take on is carefully curated, ensuring it meets the highest standards of quality, location, and lifestyle.
                                     </p>
                                     <p>
-                                        Headquartered at Wakad, Pune, Real Abodes proudly operates as a sole selling and mandate company, giving us the privilege to represent some of the finest developments across the region.
+                                        Headquartered at Chikhali, Pune, Real Abodes proudly operates as a sole selling and mandate company, giving us the privilege to represent some of the finest developments across the region.
                                     </p>
                                 </div>
                             </motion.div>

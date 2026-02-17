@@ -137,7 +137,7 @@ export default function ContactPage() {
                                             <h3 className="font-serif text-xl text-foreground mb-2">Head Office</h3>
                                             <p className="text-muted-foreground leading-relaxed">
                                                 Luxury Square, Sawata Mali Mandir Road,<br />
-                                                Chikhali, Pune - 411062<br />
+                                                Jadhavwadi - Chikhali, Pune<br />
                                                 Maharashtra, India
                                             </p>
                                         </div>
@@ -149,8 +149,7 @@ export default function ContactPage() {
                                         </div>
                                         <div>
                                             <h3 className="font-serif text-xl text-foreground mb-2">Call Us</h3>
-                                            <p className="text-muted-foreground mb-1">+91 9022 11 4646</p>
-                                            <p className="text-muted-foreground">+91 9022 11 3633</p>
+                                            <p className="text-muted-foreground mb-1">+91 9175622021</p>
                                         </div>
                                     </div>
 
