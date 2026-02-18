@@ -259,7 +259,7 @@ export default function ContactPage() {
                 {/* Map Section - Placeholder style to match design */}
                 <section className="h-[400px] w-full bg-secondary/30 relative grayscale hover:grayscale-0 transition-all duration-700">
                     <iframe
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3780.273673739768!2d73.80962!3d18.65172!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTjCsDM5JzA2LjIiTiA3M8KwNDgnMzQuNiJF!5e0!3m2!1sen!2sin!4v1625000000000!5m2!1sen!2sin"
+                        src="https://maps.google.com/maps?q=Luxury%20Square%2C%20Sawata%20Mali%20Mandir%20Road%2C%20Jadhavwadi%20-%20Chikhali%2C%20Pune&t=&z=14&ie=UTF8&iwloc=&output=embed"
                         width="100%"
                         height="100%"
                         style={{ border: 0 }}
