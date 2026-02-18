@@ -158,4 +158,61 @@
     background: linear-gradient(to top, hsl(0 0% 0% / 0.6) 0%, transparent 60%);
     pointer-events: none;
   }
+
+  /* Custom Map Marker */
+  .custom-map-marker {
+    background: transparent;
+    border: none;
+  }
+
+  .marker-pin {
+    width: 40px;
+    height: 40px;
+    border-radius: 50% 50% 50% 0;
+    background: hsl(var(--accent));
+    position: absolute;
+    transform: rotate(-45deg);
+    left: 50%;
+    top: 50%;
+    margin: -20px 0 0 -20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    z-index: 10;
+    transition: all 0.3s ease;
+  }
+
+  .marker-pin::after {
+    content: '';
+    width: 24px;
+    height: 24px;
+    margin: 8px 0 0 8px;
+    background: hsl(var(--primary));
+    position: absolute;
+    border-radius: 50%;
+  }
+
+  /* Pulsing effect */
+  .marker-pulse {
+    background: hsl(var(--accent));
+    border-radius: 50%;
+    height: 20px;
+    width: 20px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin: -10px 0 0 -10px;
+    z-index: 1;
+    opacity: 0;
+    animation: map-pulse 2s ease-out infinite;
+  }
+
+  @keyframes map-pulse {
+    0% {
+      transform: scale(0.5);
+      opacity: 0.8;
+    }
+    100% {
+      transform: scale(4);
+      opacity: 0;
+    }
+  }
 }

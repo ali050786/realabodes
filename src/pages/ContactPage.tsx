@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from "@/components/ui/use-toast";
+import Map from '@/components/ui/Map';
 
 export default function ContactPage() {
     const [loading, setLoading] = useState(true);
@@ -257,19 +258,9 @@ export default function ContactPage() {
                 </section>
 
                 {/* Map Section - Placeholder style to match design */}
-                <section className="h-[400px] w-full bg-secondary/30 relative grayscale hover:grayscale-0 transition-all duration-700">
-                    <iframe
-                        src="https://maps.google.com/maps?q=Luxury%20Square%2C%20Sawata%20Mali%20Mandir%20Road%2C%20Jadhavwadi%20-%20Chikhali%2C%20Pune&t=&z=14&ie=UTF8&iwloc=&output=embed"
-                        width="100%"
-                        height="100%"
-                        style={{ border: 0 }}
-                        allowFullScreen
-                        loading="lazy"
-                        referrerPolicy="no-referrer-when-downgrade"
-                        className="w-full h-full"
-                    ></iframe>
-                    <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent pointer-events-none" />
-                    <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-background to-transparent pointer-events-none" />
+                {/* Map Section */}
+                <section className="h-[500px] w-full bg-secondary/30 relative border-t border-border shadow-inner">
+                    <Map />
                 </section>
             </Layout>
         </>
