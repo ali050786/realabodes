@@ -3,6 +3,7 @@ import { Project, commonAmenities, Amenity } from '@/lib/projects-data';
 import { uploadProjectImage, uploadBrochure } from '@/services/projects';
 import { extractPropertyDetails } from '@/services/ai';
 import { toast } from 'sonner';
+import { SeoPreviewPanel } from '@/components/admin/SeoPreviewPanel';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -103,6 +104,9 @@ const defaultFAQs = [
 ];
 
 export const PropertyEditor = ({ property, onSave, onCancel }: PropertyEditorProps) => {
+    const [seoTitle, setSeoTitle] = useState('');
+    const [seoDescription, setSeoDescription] = useState('');
+
     const [formData, setFormData] = useState<Project>(() => {
         let initialData = property ? { ...property } : {
             ...defaultProperty,
@@ -1364,6 +1368,16 @@ export const PropertyEditor = ({ property, onSave, onCancel }: PropertyEditorPro
                         </Card>
                     )}
 
+                    {/* SEO Preview Panel */}
+                    <SeoPreviewPanel
+                        autoTitle={formData.title || ''}
+                        autoDescription={formData.subtitle || formData.shortDescription || ''}
+                        urlPath={`/project/${formData.slug || ''}`}
+                        customTitle={seoTitle}
+                        onCustomTitleChange={setSeoTitle}
+                        customDescription={seoDescription}
+                        onCustomDescriptionChange={setSeoDescription}
+                    />
                 </div>
             </ScrollArea >
         </div >

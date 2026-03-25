@@ -4,9 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Save, Globe, FileText, CheckCircle2, AlertCircle, Search, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Save, Globe, FileText, CheckCircle2, AlertCircle, Search, ExternalLink, Lightbulb, Settings2 } from 'lucide-react';
 import { fetchSiteSettings, updateSiteSetting } from '@/services/settings';
 import { toast } from 'sonner';
+import { SeoTipsGuide } from '@/components/admin/SeoTipsGuide';
 
 interface SeoViewProps {
     onBack: () => void;
@@ -76,6 +77,7 @@ const CharCounter = ({ value, limit }: { value: string; limit: number }) => {
 };
 
 export const SeoView: React.FC<SeoViewProps> = ({ onBack }) => {
+    const [activeTab, setActiveTab] = useState<'pages' | 'tips'>('pages');
     const [selectedPage, setSelectedPage] = useState<SeoPage | null>(null);
     const [seoData, setSeoData] = useState<Record<string, SeoFields>>({ ...DEFAULT_SEO });
     const [loading, setLoading] = useState(true);
@@ -273,9 +275,41 @@ export const SeoView: React.FC<SeoViewProps> = ({ onBack }) => {
                 </Button>
                 <div>
                     <h2 className="text-3xl font-bold text-gray-900">SEO Manager</h2>
-                    <p className="text-muted-foreground">Edit page titles, descriptions, and keywords for each page of your website.</p>
+                    <p className="text-muted-foreground">Manage search engine visibility for your website.</p>
                 </div>
             </div>
+
+            {/* Tabs */}
+            <div className="flex gap-1 border-b">
+                <button
+                    onClick={() => setActiveTab('pages')}
+                    className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                        activeTab === 'pages'
+                            ? 'border-primary text-primary'
+                            : 'border-transparent text-muted-foreground hover:text-gray-700'
+                    }`}
+                >
+                    <Settings2 className="w-4 h-4" /> Page Settings
+                </button>
+                <button
+                    onClick={() => setActiveTab('tips')}
+                    className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                        activeTab === 'tips'
+                            ? 'border-primary text-primary'
+                            : 'border-transparent text-muted-foreground hover:text-gray-700'
+                    }`}
+                >
+                    <Lightbulb className="w-4 h-4" /> SEO Tips Guide
+                </button>
+            </div>
+
+            {/* Tips Tab */}
+            {activeTab === 'tips' && (
+                <SeoTipsGuide />
+            )}
+
+            {/* Pages Tab */}
+            {activeTab === 'pages' && <>
 
             {/* SEO Quick Guide */}
             <Card className="bg-amber-50 border-amber-200">
@@ -348,10 +382,11 @@ export const SeoView: React.FC<SeoViewProps> = ({ onBack }) => {
             <Card className="bg-gray-50 border-dashed">
                 <CardContent className="pt-4 pb-3">
                     <p className="text-xs text-muted-foreground">
-                        💡 <strong>Tip:</strong> Individual blog posts and property pages get their SEO automatically from the content you enter in the Blog Editor and Property Editor. You only need to manage the main page SEO here.
+                        💡 <strong>Tip:</strong> Individual blog posts and property pages get their SEO automatically from the content you enter in the Blog Editor and Property Editor. You only need to manage the main page SEO here. Visit the <button className="underline" onClick={() => setActiveTab('tips')}>SEO Tips Guide</button> to learn how to write better titles and descriptions.
                     </p>
                 </CardContent>
             </Card>
+            </>}
         </div>
     );
 };

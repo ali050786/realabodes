@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { BlogPost, uniqueCategories } from '@/lib/blog-data';
 import { ArrowLeft, Save, Eye, X, Image as ImageIcon, Plus } from 'lucide-react';
 import { toast } from 'sonner';
+import { SeoPreviewPanel } from '@/components/admin/SeoPreviewPanel';
 
 // ImplementationLog
 // Date: 2026-01-29
@@ -42,6 +43,8 @@ export const BlogEditor: React.FC<BlogEditorProps> = ({ blog, onSave, onCancel }
     const [previewMode, setPreviewMode] = useState(false);
     const [tagInput, setTagInput] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [seoTitle, setSeoTitle] = useState('');
+    const [seoDescription, setSeoDescription] = useState('');
 
     // Update form data if blog prop changes
     useEffect(() => {
@@ -346,6 +349,18 @@ export const BlogEditor: React.FC<BlogEditorProps> = ({ blog, onSave, onCancel }
                             </div>
                         </CardContent>
                     </Card>
+
+                    {/* SEO Preview Panel */}
+                    <SeoPreviewPanel
+                        autoTitle={formData.title || ''}
+                        autoDescription={formData.excerpt || ''}
+                        urlPath={`/blog/${formData.slug || ''}`}
+                        customTitle={seoTitle}
+                        onCustomTitleChange={setSeoTitle}
+                        customDescription={seoDescription}
+                        onCustomDescriptionChange={setSeoDescription}
+                        compact={true}
+                    />
                 </div>
             </div>
         </div>
