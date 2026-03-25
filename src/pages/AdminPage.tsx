@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-    Home, FileText, ArrowRight, LayoutDashboard, Plus, Trash2, MapPin, DollarSign, Search, ArrowLeft, Database, Settings, Mail
+    Home, FileText, ArrowRight, LayoutDashboard, Plus, Trash2, MapPin, DollarSign, Search, ArrowLeft, Database, Settings, Mail, Globe
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { projects as initialProjects, Project } from '@/lib/projects-data';
@@ -24,6 +24,7 @@ import { PropertyEditor } from '@/components/admin/PropertyEditor';
 import { BlogEditor } from '@/components/admin/BlogEditor';
 import { SettingsView } from '@/components/admin/SettingsView';
 import { MessagesView } from '@/components/admin/MessagesView';
+import { SeoView } from '@/components/admin/SeoView';
 // import { useAuth } from '@/context/AuthContext';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useProjectStore } from '@/stores/useProjectStore';
@@ -53,7 +54,7 @@ const AdminPage = () => {
         deletePost
     } = useBlogStore();
 
-    const [view, setView] = useState<'dashboard' | 'properties' | 'blogs' | 'editor' | 'blogEditor' | 'settings' | 'messages'>('dashboard');
+    const [view, setView] = useState<'dashboard' | 'properties' | 'blogs' | 'editor' | 'blogEditor' | 'settings' | 'messages' | 'seo'>('dashboard');
     // Local state for filtered items in admin view might not be needed if we use store filters, 
     // but Admin search is local to Admin view. 
     // Let's keep search local and filter `projects` / `blogs` from store locally for admin view.
@@ -267,6 +268,25 @@ const AdminPage = () => {
                 <CardContent className="flex justify-center pb-8">
                     <Button variant="outline" className="border-slate-200 hover:bg-slate-50 text-slate-700 hover:text-slate-800 group-hover:bg-slate-600 group-hover:text-white group-hover:border-transparent transition-all">
                         Configure <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                </CardContent>
+            </Card>
+
+            {/* SEO Manager Card */}
+            <Card
+                className="hover:shadow-lg transition-all duration-300 border-2 hover:border-emerald-500/20 group cursor-pointer"
+                onClick={() => setView('seo')}
+            >
+                <CardHeader className="text-center pb-4">
+                    <div className="mx-auto w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <Globe className="w-8 h-8 text-emerald-600" />
+                    </div>
+                    <CardTitle className="text-2xl">SEO Manager</CardTitle>
+                    <CardDescription>Edit page titles, descriptions &amp; keywords for Google.</CardDescription>
+                </CardHeader>
+                <CardContent className="flex justify-center pb-8">
+                    <Button variant="outline" className="border-emerald-200 hover:bg-emerald-50 text-emerald-700 hover:text-emerald-800 group-hover:bg-emerald-600 group-hover:text-white group-hover:border-transparent transition-all">
+                        Manage SEO <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                     </Button>
                 </CardContent>
             </Card>
@@ -552,6 +572,8 @@ const AdminPage = () => {
                     <MessagesView onBack={() => setView('dashboard')} />
                 ) : view === 'settings' ? (
                     <SettingsView onBack={() => setView('dashboard')} />
+                ) : view === 'seo' ? (
+                    <SeoView onBack={() => setView('dashboard')} />
                 ) : null}
             </main>
         </div>

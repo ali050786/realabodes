@@ -58,6 +58,8 @@ import { Amenity, ProximityItem, Project } from '@/lib/projects-data';
 import { useState, useEffect } from 'react';
 import { fetchProjects } from '@/services/projects';
 import { useProjectStore } from '@/stores/useProjectStore';
+import { SEO, propertySchema, breadcrumbSchema } from '@/components/SEO';
+import { useMemo } from 'react';
 
 // Icon mapping for amenities
 const amenityIcons: Record<string, React.ReactNode> = {
@@ -232,8 +234,37 @@ export default function ProjectDetailPage() {
     return acc;
   }, {} as Record<string, ProximityItem[]>);
 
+  // Generate structured data for the project using centralised helpers
+  const structuredData = useMemo(() => {
+    if (!project) return null;
+    return [
+      propertySchema({
+        name: project.title,
+        description: project.fullDescription,
+        slug: project.slug,
+        image: project.heroImage || project.images[0]?.url,
+        location: project.location,
+        price: project.price,
+        status: project.status,
+      }),
+      breadcrumbSchema([
+        { name: 'Home', url: '/' },
+        { name: 'Projects', url: '/projects' },
+        { name: project.title, url: `/project/${project.slug}` },
+      ]),
+    ];
+  }, [project]);
+
   return (
     <>
+      <SEO
+        title={`${project.title} – ${project.location || 'Pimpri Chinchwad'}`}
+        description={project.subtitle || project.fullDescription.slice(0, 160)}
+        keywords={`${project.title}, ${project.location}, property in PCMC, ${project.category || 'residential'} property Pune`}
+        canonical={`/project/${project.slug}`}
+        ogImage={project.heroImage || project.images[0]?.url}
+        structuredData={structuredData || undefined}
+      />
       <AnimatePresence mode="wait">
         {showPreloader && <Preloader onComplete={() => setShowPreloader(false)} />}
       </AnimatePresence>

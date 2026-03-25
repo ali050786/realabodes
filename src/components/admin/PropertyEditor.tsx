@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { Project, commonAmenities, Amenity } from '@/lib/projects-data';
+import { uploadProjectImage, uploadBrochure } from '@/services/projects';
+import { extractPropertyDetails } from '@/services/ai';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -36,7 +39,13 @@ const defaultProperty: Partial<Project> = {
     location: '',
     address: '',
     priceRange: '',
+    client: '',
     year: new Date().getFullYear().toString(),
+    duration: '',
+    reraNumber: '',
+    videoUrl: '',
+    virtualTourUrl: '',
+    brochureUrl: '',
     images: [],
     metrics: [],
     phases: [],
@@ -112,6 +121,8 @@ export const PropertyEditor = ({ property, onSave, onCancel }: PropertyEditorPro
 
         return initialData;
     });
+
+    const [isExtracting, setIsExtracting] = useState(false);
 
     const [activeAmenityCategory, setActiveAmenityCategory] = useState('Lifestyle');
     const [visibleSections, setVisibleSections] = useState<string[]>(() => {
@@ -230,13 +241,113 @@ export const PropertyEditor = ({ property, onSave, onCancel }: PropertyEditorPro
             <ScrollArea className="flex-1 -mx-6 px-6 pb-20">
                 <div className="space-y-10 pb-20">
 
+                    {/* AI Brochure Auto-fill Section */}
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-6 mb-8 relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                            <FileText className="w-24 h-24" />
+                        </div>
+                        <div className="relative z-10">
+                            <h3 className="text-lg font-bold text-gray-900 mb-2 flex items-center gap-2">
+                                <FileText className="w-5 h-5 text-blue-600" />
+                                AI Property Assistant
+                            </h3>
+                            <p className="text-sm text-gray-600 mb-4 max-w-2xl">
+                                Upload a PDF brochure of the property. Our AI agent will read the brochure and fill out 
+                                the listing details for you automatically. You'll only need to review and upload images!
+                            </p>
+                            
+                            <div className="flex items-center gap-4">
+                                <div className="relative">
+                                    <input 
+                                        type="file" 
+                                        accept="application/pdf"
+                                        className="absolute inset-0 opacity-0 cursor-pointer z-10" 
+                                        onChange={async (e) => {
+                                            const file = e.target.files?.[0];
+                                            if (!file) return;
+                                            
+                                            setIsExtracting(true);
+                                            toast.loading("Uploading brochure and analyzing with AI...");
+
+                                            try {
+                                                // 1. Upload to Supabase brochures bucket
+                                                const brochureUrl = await uploadBrochure(file);
+                                                handleChange('brochureUrl', brochureUrl);
+                                                
+                                                // 2. Extract details
+                                                const extractedData = await extractPropertyDetails(file);
+                                                
+                                                // 3. Sanitize data to avoid uncontrolled -> controlled warning
+                                                // Ensure no undefined values are spread into state
+                                                const sanitizedData: any = {};
+                                                Object.keys(extractedData).forEach(key => {
+                                                    const val = (extractedData as any)[key];
+                                                    if (val !== undefined && val !== null) {
+                                                        sanitizedData[key] = val;
+                                                    }
+                                                });
+
+                                                // 4. Update form data - preserve some fields that might already be filled
+                                                setFormData(prev => ({
+                                                    ...prev,
+                                                    ...sanitizedData,
+                                                    id: prev.id, // keep id
+                                                    images: prev.images, // keep images
+                                                    heroImage: prev.heroImage,
+                                                    thumbnail: prev.thumbnail,
+                                                }));
+
+                                                toast.dismiss();
+                                                toast.success("Details extracted successfully! Please review the fields.");
+                                            } catch (error: any) {
+                                                console.error("AI Extraction failed:", error);
+                                                toast.dismiss();
+                                                if (error.message?.includes('bucket')) {
+                                                    toast.error("Extraction failed: 'brochures' bucket not found in Supabase. Please create it.");
+                                                } else {
+                                                    toast.error("AI extraction failed. Please try again or fill manually.");
+                                                }
+                                            } finally {
+                                                setIsExtracting(false);
+                                            }
+                                        }}
+                                        disabled={isExtracting}
+                                    />
+                                    <Button 
+                                        className={cn(
+                                            "gap-2 bg-blue-600 hover:bg-blue-700 text-white transition-all",
+                                            isExtracting && "opacity-70 pointer-events-none"
+                                        )}
+                                    >
+                                        {isExtracting ? (
+                                            <span className="flex items-center gap-2">
+                                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                Analyzing Brochure...
+                                            </span>
+                                        ) : (
+                                            <>
+                                                <Upload className="w-4 h-4" />
+                                                Upload PDF Brochure
+                                            </>
+                                        )}
+                                    </Button>
+                                </div>
+                                {formData.brochureUrl && !isExtracting && (
+                                    <div className="flex items-center gap-2 text-sm text-green-600 font-medium">
+                                        <Check className="w-4 h-4" /> Brochure Linked
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
                     {/* 1. Basic Info Section */}
                     <section className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <Label className="text-sm font-medium text-gray-700">Property Name</Label>
                                 <Input
-                                    value={formData.title}
+                                    value={formData.title || ''}
                                     onChange={e => handleChange('title', e.target.value)}
                                     placeholder="e.g. Grand Horizon Villas"
                                     className="h-12 border-gray-300 rounded-md"
@@ -245,7 +356,7 @@ export const PropertyEditor = ({ property, onSave, onCancel }: PropertyEditorPro
                             <div className="space-y-2">
                                 <Label className="text-sm font-medium text-gray-700">Tagline</Label>
                                 <Input
-                                    value={formData.subtitle}
+                                    value={formData.subtitle || ''}
                                     onChange={e => handleChange('subtitle', e.target.value)}
                                     placeholder="e.g. Luxury Living Redefined"
                                     className="h-12 border-gray-300 rounded-md"
@@ -257,7 +368,7 @@ export const PropertyEditor = ({ property, onSave, onCancel }: PropertyEditorPro
                             <div className="space-y-2">
                                 <Label className="text-sm font-medium text-gray-700">Slug (URL)</Label>
                                 <Input
-                                    value={formData.slug}
+                                    value={formData.slug || ''}
                                     onChange={e => handleChange('slug', e.target.value)}
                                     placeholder="e.g. grand-horizon-villas"
                                     className="h-12 border-gray-300 rounded-md"
@@ -282,7 +393,7 @@ export const PropertyEditor = ({ property, onSave, onCancel }: PropertyEditorPro
                                 <div className="relative">
                                     <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                                     <Input
-                                        value={formData.location}
+                                        value={formData.location || ''}
                                         onChange={e => handleChange('location', e.target.value)}
                                         placeholder="e.g. Baner, Pune"
                                         className="h-12 pl-10 border-gray-300 rounded-md"
@@ -292,7 +403,7 @@ export const PropertyEditor = ({ property, onSave, onCancel }: PropertyEditorPro
                             <div className="space-y-2">
                                 <Label className="text-sm font-medium text-gray-700">Price</Label>
                                 <Input
-                                    value={formData.priceRange}
+                                    value={formData.priceRange || ''}
                                     onChange={e => handleChange('priceRange', e.target.value)}
                                     placeholder="e.g. Starts from ₹1.5 Cr"
                                     className="h-12 border-gray-300 rounded-md"
@@ -351,7 +462,7 @@ export const PropertyEditor = ({ property, onSave, onCancel }: PropertyEditorPro
                                     <User className="w-4 h-4" /> Client
                                 </Label>
                                 <Input
-                                    value={formData.client}
+                                    value={formData.client || ''}
                                     onChange={e => handleChange('client', e.target.value)}
                                     placeholder="e.g. Azure Developments"
                                     className="h-10"
@@ -362,7 +473,7 @@ export const PropertyEditor = ({ property, onSave, onCancel }: PropertyEditorPro
                                     <Calendar className="w-4 h-4" /> Year
                                 </Label>
                                 <Input
-                                    value={formData.year}
+                                    value={formData.year || ''}
                                     onChange={e => handleChange('year', e.target.value)}
                                     placeholder="e.g. 2025"
                                     className="h-10"
@@ -373,7 +484,7 @@ export const PropertyEditor = ({ property, onSave, onCancel }: PropertyEditorPro
                                     <Clock className="w-4 h-4" /> Duration
                                 </Label>
                                 <Input
-                                    value={formData.duration}
+                                    value={formData.duration || ''}
                                     onChange={e => handleChange('duration', e.target.value)}
                                     placeholder="e.g. 24 months"
                                     className="h-10"
@@ -567,7 +678,7 @@ export const PropertyEditor = ({ property, onSave, onCancel }: PropertyEditorPro
                         <div className="space-y-2 pt-4 border-t">
                             <Label className="text-sm font-medium text-gray-700">Full Description</Label>
                             <Textarea
-                                value={formData.fullDescription}
+                                value={formData.fullDescription || ''}
                                 onChange={e => handleChange('fullDescription', e.target.value)}
                                 rows={8}
                                 placeholder="Comprehensive description of the property features and value proposition..."
@@ -676,7 +787,7 @@ export const PropertyEditor = ({ property, onSave, onCancel }: PropertyEditorPro
                                                 <Label className="text-xs mb-1.5 block">Image URL</Label>
                                                 <div className="flex gap-2">
                                                     <Input
-                                                        value={img.url}
+                                                        value={img.url || ''}
                                                         onChange={e => handleNestedChange('images', index, 'url', e.target.value)}
                                                         placeholder="https://..."
                                                         className="h-9"
@@ -689,7 +800,7 @@ export const PropertyEditor = ({ property, onSave, onCancel }: PropertyEditorPro
                                             <div>
                                                 <Label className="text-xs mb-1.5 block">Alt Text</Label>
                                                 <Input
-                                                    value={img.alt}
+                                                    value={img.alt || ''}
                                                     onChange={e => handleNestedChange('images', index, 'alt', e.target.value)}
                                                     placeholder="Description"
                                                     className="h-9"
@@ -744,7 +855,7 @@ export const PropertyEditor = ({ property, onSave, onCancel }: PropertyEditorPro
                                                 <div className="space-y-2">
                                                     <Label className="text-xs">Unit Name</Label>
                                                     <Input
-                                                        value={plan.name}
+                                                        value={plan.name || ''}
                                                         onChange={e => handleNestedChange('floorPlans', index, 'name', e.target.value)}
                                                         placeholder="e.g. 3BHK Type A"
                                                     />
@@ -752,7 +863,7 @@ export const PropertyEditor = ({ property, onSave, onCancel }: PropertyEditorPro
                                                 <div className="space-y-2">
                                                     <Label className="text-xs">Type</Label>
                                                     <Input
-                                                        value={plan.type}
+                                                        value={plan.type || ''}
                                                         onChange={e => handleNestedChange('floorPlans', index, 'type', e.target.value)}
                                                         placeholder="e.g. Apartment / Penthouse"
                                                     />
@@ -763,7 +874,7 @@ export const PropertyEditor = ({ property, onSave, onCancel }: PropertyEditorPro
                                                 <div className="space-y-2">
                                                     <Label className="text-xs">Size (sq.ft)</Label>
                                                     <Input
-                                                        value={plan.size}
+                                                        value={plan.size || ''}
                                                         onChange={e => handleNestedChange('floorPlans', index, 'size', e.target.value)}
                                                         placeholder="e.g. 1500"
                                                     />
@@ -940,19 +1051,19 @@ export const PropertyEditor = ({ property, onSave, onCancel }: PropertyEditorPro
                                                 </SelectContent>
                                             </Select>
                                             <Input
-                                                value={item.name}
+                                                value={item.name || ''}
                                                 onChange={e => handleNestedChange('proximity', index, 'name', e.target.value)}
                                                 placeholder="Name"
                                                 className="border-0 h-auto p-0 focus-visible:ring-0"
                                             />
                                             <Input
-                                                value={item.distance}
+                                                value={item.distance || ''}
                                                 onChange={e => handleNestedChange('proximity', index, 'distance', e.target.value)}
                                                 placeholder="Dist."
                                                 className="border-0 h-auto p-0 focus-visible:ring-0"
                                             />
                                             <Input
-                                                value={item.duration}
+                                                value={item.duration || ''}
                                                 onChange={e => handleNestedChange('proximity', index, 'duration', e.target.value)}
                                                 placeholder="Time"
                                                 className="border-0 h-auto p-0 focus-visible:ring-0"
@@ -998,7 +1109,7 @@ export const PropertyEditor = ({ property, onSave, onCancel }: PropertyEditorPro
                                             <div className="mb-4 pr-10">
                                                 <Label className="text-xs mb-1.5 block font-semibold text-gray-500 uppercase tracking-wider">Category</Label>
                                                 <Input
-                                                    value={spec.category}
+                                                    value={spec.category || ''}
                                                     onChange={e => handleNestedChange('specifications', catIndex, 'category', e.target.value)}
                                                     placeholder="e.g. Structure"
                                                     className="font-medium"
@@ -1010,7 +1121,7 @@ export const PropertyEditor = ({ property, onSave, onCancel }: PropertyEditorPro
                                                     <div key={itemIndex} className="flex gap-3 items-start group">
                                                         <div className="flex-1">
                                                             <Input
-                                                                value={item.label}
+                                                                value={item.label || ''}
                                                                 onChange={e => {
                                                                     const newSpecs = [...formData.specifications];
                                                                     newSpecs[catIndex].items[itemIndex].label = e.target.value;
@@ -1022,7 +1133,7 @@ export const PropertyEditor = ({ property, onSave, onCancel }: PropertyEditorPro
                                                         </div>
                                                         <div className="flex-[2]">
                                                             <Input
-                                                                value={item.value}
+                                                                value={item.value || ''}
                                                                 onChange={e => {
                                                                     const newSpecs = [...formData.specifications];
                                                                     newSpecs[catIndex].items[itemIndex].value = e.target.value;
@@ -1103,7 +1214,7 @@ export const PropertyEditor = ({ property, onSave, onCancel }: PropertyEditorPro
                                                 <div className="space-y-1">
                                                     <Label className="text-xs text-gray-500">Question</Label>
                                                     <Input
-                                                        value={faq.question}
+                                                        value={faq.question || ''}
                                                         onChange={e => handleNestedChange('faqs', index, 'question', e.target.value)}
                                                         placeholder="e.g. Is there visitor parking?"
                                                         className="font-medium"
@@ -1112,7 +1223,7 @@ export const PropertyEditor = ({ property, onSave, onCancel }: PropertyEditorPro
                                                 <div className="space-y-1">
                                                     <Label className="text-xs text-gray-500">Answer</Label>
                                                     <Textarea
-                                                        value={faq.answer}
+                                                        value={faq.answer || ''}
                                                         onChange={e => handleNestedChange('faqs', index, 'answer', e.target.value)}
                                                         placeholder="e.g. Yes, ample covered visitor parking is available."
                                                         className="min-h-[60px]"
@@ -1188,7 +1299,7 @@ export const PropertyEditor = ({ property, onSave, onCancel }: PropertyEditorPro
                                             <div className="md:col-span-1 space-y-2">
                                                 <Label className="text-xs text-gray-500">Phase Name</Label>
                                                 <Input
-                                                    value={phase.name}
+                                                    value={phase.name || ''}
                                                     onChange={e => handleNestedChange('phases', index, 'name', e.target.value)}
                                                     placeholder="e.g. Excavation"
                                                     className="h-9"
@@ -1223,7 +1334,7 @@ export const PropertyEditor = ({ property, onSave, onCancel }: PropertyEditorPro
                                                 <div className="flex-1 space-y-2">
                                                     <Label className="text-xs text-gray-500">Description</Label>
                                                     <Input
-                                                        value={phase.description}
+                                                        value={phase.description || ''}
                                                         onChange={e => handleNestedChange('phases', index, 'description', e.target.value)}
                                                         placeholder="Short details..."
                                                         className="h-9"

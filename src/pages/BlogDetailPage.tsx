@@ -10,6 +10,8 @@ import { Layout } from "@/components/layout/Layout";
 import { Preloader } from "@/components/ui/Preloader";
 import { fetchBlogs } from "@/services/blog";
 import { useBlogStore } from "@/stores/useBlogStore";
+import { SEO, articleSchema, breadcrumbSchema } from "@/components/SEO";
+import { useMemo } from "react";
 
 const BlogDetailPage = () => {
     const { slug } = useParams();
@@ -67,8 +69,43 @@ const BlogDetailPage = () => {
         );
     }
 
+    // Generate structured data for the blog post
+    const postDescription = post.excerpt || post.content.replace(/<[^>]*>?/gm, '').slice(0, 160);
+
+    const structuredData = useMemo(() => {
+        if (!post) return null;
+        return [
+            articleSchema({
+                title: post.title,
+                description: postDescription,
+                slug: post.slug,
+                image: post.coverImage,
+                publishedAt: post.date,
+                author: post.author,
+                category: post.category,
+            }),
+            breadcrumbSchema([
+                { name: 'Home', url: '/' },
+                { name: 'Blog', url: '/blog' },
+                { name: post.title, url: `/blog/${post.slug}` },
+            ]),
+        ];
+    }, [post]);
+
     return (
         <>
+            <SEO
+                title={post.title}
+                description={postDescription}
+                keywords={`${post.category}, real estate blog, property tips Pune, ${post.tags?.join(', ') || ''}`}
+                canonical={`/blog/${post.slug}`}
+                ogImage={post.coverImage}
+                ogType="article"
+                articlePublishedTime={post.date}
+                articleAuthor={post.author}
+                articleSection={post.category}
+                structuredData={structuredData || undefined}
+            />
             <AnimatePresence mode="wait">
                 {showPreloader && <Preloader onComplete={() => setShowPreloader(false)} />}
             </AnimatePresence>

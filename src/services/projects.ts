@@ -173,6 +173,27 @@ export const uploadProjectImage = async (file: File): Promise<string> => {
     return data.publicUrl;
 };
 
+export const uploadBrochure = async (file: File): Promise<string> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+        .from('brochures')
+        .upload(filePath, file);
+
+    if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+    }
+
+    const { data } = supabase.storage
+        .from('brochures')
+        .getPublicUrl(filePath);
+
+    return data.publicUrl;
+};
+
 export const seedProject = async (project: Project): Promise<Project> => {
     // Separate top-level columns from JSONB details
     const {

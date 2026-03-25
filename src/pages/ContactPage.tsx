@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from "@/components/ui/use-toast";
 import Map from '@/components/ui/Map';
+import { SEO, localBusinessSchema, breadcrumbSchema } from '@/components/SEO';
 
 export default function ContactPage() {
     const [loading, setLoading] = useState(true);
@@ -76,6 +77,19 @@ export default function ContactPage() {
 
     return (
         <>
+            <SEO
+                title="Contact Us – Get in Touch"
+                description="Contact Real Abodes today. Visit our office in Pimpri Chinchwad, call us, or send a message. Our experts are ready to help you find your perfect property in PCMC, Pune."
+                keywords="contact Real Abodes, real estate agent contact Pimpri Chinchwad, property inquiry PCMC Pune"
+                canonical="/contact"
+                structuredData={[
+                    localBusinessSchema,
+                    breadcrumbSchema([
+                        { name: 'Home', url: '/' },
+                        { name: 'Contact Us', url: '/contact' },
+                    ]),
+                ]}
+            />
             <AnimatePresence mode="wait">
                 {loading && <Preloader onComplete={() => setLoading(false)} />}
             </AnimatePresence>

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { blogPosts as staticPosts, uniqueCategories as staticCategories, BlogPost } from "@/lib/blog-data";
 import { Button } from "@/components/ui/button";
+import { SEO, breadcrumbSchema } from "@/components/SEO";
 import { Input } from "@/components/ui/input";
 import { Search, ArrowRight, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -41,6 +42,16 @@ const BlogListPage = () => {
 
     return (
         <>
+            <SEO
+                title="Real Estate Blog – Tips, Guides & Market Insights"
+                description="Read the Real Abodes blog for the latest real estate tips, property buying guides, market trends, and insights for homebuyers in Pimpri Chinchwad and Pune."
+                keywords="real estate blog, property buying guide, PCMC market insights, home buying tips Pune, real estate news Pimpri Chinchwad"
+                canonical="/blog"
+                structuredData={breadcrumbSchema([
+                    { name: 'Home', url: '/' },
+                    { name: 'Blog', url: '/blog' },
+                ])}
+            />
             <AnimatePresence mode="wait">
                 {preloaderVisible && <Preloader onComplete={() => setPreloaderVisible(false)} />}
             </AnimatePresence>

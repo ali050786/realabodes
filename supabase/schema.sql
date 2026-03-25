@@ -52,16 +52,29 @@ insert into storage.buckets (id, name, public)
 values ('project-images', 'project-images', true)
 on conflict (id) do nothing;
 
+-- Create storage bucket for brochures if it doesn't exist
+insert into storage.buckets (id, name, public, allowed_mime_types) 
+values ('brochures', 'brochures', true, '{application/pdf}')
+on conflict (id) do nothing;
+
 -- Storage policies
 drop policy if exists "Project images are publicly accessible" on storage.objects;
--- drop policy if exists "Authenticated users can upload project images" on storage.objects; -- In case it exists with the old name
 drop policy if exists "Enable public upload for project images" on storage.objects;
+drop policy if exists "Brochures are publicly accessible" on storage.objects;
+drop policy if exists "Enable public upload for brochures" on storage.objects;
 
 create policy "Project images are publicly accessible"
   on storage.objects for select
   using ( bucket_id = 'project-images' );
 
--- FOR DEVELOPMENT: Allowing public uploads. Revert to auth access for production.
 create policy "Enable public upload for project images"
   on storage.objects for insert
   with check ( bucket_id = 'project-images' );
+
+create policy "Brochures are publicly accessible"
+  on storage.objects for select
+  using ( bucket_id = 'brochures' );
+
+create policy "Enable public upload for brochures"
+  on storage.objects for insert
+  with check ( bucket_id = 'brochures' );

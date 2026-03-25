@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { Layout } from '@/components/layout/Layout';
 import { CheckCircle2, Users, Heart, Lightbulb, Shield } from 'lucide-react';
 import { Preloader } from '@/components/ui/Preloader';
+import { SEO, breadcrumbSchema } from '@/components/SEO';
 
 export default function AboutPage() {
     const [loading, setLoading] = useState(true);
@@ -14,6 +15,16 @@ export default function AboutPage() {
 
     return (
         <>
+            <SEO
+                title="About Us – Our Story & Mission"
+                description="Learn about Real Abodes – Pimpri Chinchwad's most trusted real estate agency. Meet our team, discover our values, and understand why thousands of families trust us for their dream homes."
+                keywords="about Real Abodes, real estate agency Pimpri Chinchwad, PCMC property experts, trusted real estate agent Pune"
+                canonical="/about"
+                structuredData={breadcrumbSchema([
+                    { name: 'Home', url: '/' },
+                    { name: 'About Us', url: '/about' },
+                ])}
+            />
             <AnimatePresence mode="wait">
                 {loading && <Preloader onComplete={() => setLoading(false)} />}
             </AnimatePresence>

@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Preloader } from '@/components/ui/Preloader';
 import { Layout } from '@/components/layout/Layout';
+import { SEO, breadcrumbSchema } from '@/components/SEO';
 import { ProjectCard } from '@/components/projects/ProjectCard';
 import { ProjectListItem } from '@/components/projects/ProjectListItem';
 import { ProjectFilters } from '@/components/projects/ProjectFilters';
@@ -67,6 +68,16 @@ export default function ProjectsPage() {
 
   return (
     <>
+      <SEO
+        title="Properties & Projects – Browse Real Estate in PCMC"
+        description="Browse premium residential and commercial projects in Pimpri Chinchwad, Pune. Filter by location, budget, and type to find your perfect home with Real Abodes."
+        keywords="properties in Pimpri Chinchwad, new projects PCMC, flats for sale Pune, residential plots PCMC, commercial property Pimpri"
+        canonical="/projects"
+        structuredData={breadcrumbSchema([
+          { name: 'Home', url: '/' },
+          { name: 'Projects', url: '/projects' },
+        ])}
+      />
       <AnimatePresence mode="wait">
         {loading && <Preloader onComplete={() => setLoading(false)} />}
       </AnimatePresence>

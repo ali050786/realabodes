@@ -28,6 +28,8 @@ import { BuyingJourneyParallax } from '@/components/home/BuyingJourneyParallax';
 import { TrustSignalsSection } from '@/components/home/TrustSignalsSection';
 import { TestimonialsSection } from '@/components/home/TestimonialsSection';
 import { ServiceAreasSection } from '@/components/home/ServiceAreasSection';
+import { SEO, localBusinessSchema, websiteSchema } from '@/components/SEO';
+import { useMemo } from 'react';
 
 // ... (log entries)
 
@@ -93,8 +95,19 @@ export default function HomePage() {
 
 
 
+  // Real Estate Agent Structured Data
+  // Use centralised schema helpers
+  const structuredData = useMemo(() => [localBusinessSchema, websiteSchema], []);
+
   return (
     <>
+      <SEO
+        title="Best Real Estate Agent in Pimpri Chinchwad, PCMC"
+        description="Real Abodes is Pimpri Chinchwad's most trusted real estate agent. Explore premium residential & commercial properties in PCMC, Pune. Expert guidance, transparent deals."
+        keywords="real estate Pimpri Chinchwad, property in PCMC, flats in Pimpri, apartments Chinchwad, real estate agent Pune, buy home PCMC"
+        canonical="/"
+        structuredData={structuredData}
+      />
       <AnimatePresence mode="wait">
         {loading && <Preloader onComplete={() => setLoading(false)} />}
       </AnimatePresence>
