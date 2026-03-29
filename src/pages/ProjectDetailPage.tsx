@@ -58,7 +58,7 @@ import { Amenity, ProximityItem, Project } from '@/lib/projects-data';
 import { useState, useEffect } from 'react';
 import { fetchProjects } from '@/services/projects';
 import { useProjectStore } from '@/stores/useProjectStore';
-import { SEO, propertySchema, breadcrumbSchema } from '@/components/SEO';
+import { SEO, propertySchema, breadcrumbSchema, faqSchema } from '@/components/SEO';
 import { useMemo } from 'react';
 
 // Icon mapping for amenities
@@ -169,15 +169,21 @@ export default function ProjectDetailPage() {
   // Generate structured data for the project using centralised helpers
   const structuredData = useMemo(() => {
     if (!project) return null;
-    return [
+    const schemas = [
       propertySchema({
         name: project.title,
-        description: project.fullDescription,
+        description: project.fullDescription || project.shortDescription || '',
         slug: project.slug,
-        image: project.heroImage || project.images[0]?.url,
+        image: project.heroImage || project.images?.[0]?.url,
         location: project.location,
         price: project.price,
+        priceRange: project.priceRange,
         status: project.status,
+        category: project.category,
+        reraNumber: project.reraNumber,
+        developer: project.client,          // "client" field stores developer name
+        highlights: project.highlights,
+        amenitiesCount: project.amenities?.length,
       }),
       breadcrumbSchema([
         { name: 'Home', url: '/' },
@@ -185,6 +191,16 @@ export default function ProjectDetailPage() {
         { name: project.title, url: `/project/${project.slug}` },
       ]),
     ];
+    // Add FAQ schema if the project has FAQs — gives rich "People also ask" results
+    if (project.faqs && project.faqs.length > 0) {
+      schemas.push(
+        faqSchema(project.faqs.map((f: any) => ({
+          question: f.question,
+          answer: f.answer,
+        })))
+      );
+    }
+    return schemas;
   }, [project]);
 
   if (isLoading) {
@@ -259,11 +275,30 @@ export default function ProjectDetailPage() {
   return (
     <>
       <SEO
-        title={`${project.title} – ${project.location || 'Pimpri Chinchwad'}`}
-        description={project.subtitle || project.fullDescription.slice(0, 160)}
-        keywords={`${project.title}, ${project.location}, property in PCMC, ${project.category || 'residential'} property Pune`}
+        // Lead with the project name so Google immediately associates the brand keyword
+        title={`${project.title} | ${project.category || 'Property'} in ${project.location || 'Pimpri Chinchwad'}`}
+        // Description: project name + key selling point + location + RERA signal
+        description={
+          project.subtitle
+            ? `${project.subtitle} – ${project.title} in ${project.location || 'Pimpri Chinchwad'}. ${project.reraNumber ? 'RERA Approved. ' : ''}${project.priceRange ? `Starting ${project.priceRange}. ` : ''}Contact Real Abodes today.`.slice(0, 160)
+            : `${project.title} – ${project.category || 'Residential'} project in ${project.location || 'Pimpri Chinchwad'}. ${project.reraNumber ? 'RERA Approved. ' : ''}${project.priceRange ? `Starting ${project.priceRange}. ` : ''}Book a site visit with Real Abodes.`.slice(0, 160)
+        }
+        // Keywords: project name, developer, locality — exact terms buyers search for
+        keywords={[
+          project.title,
+          project.client && `${project.title} by ${project.client}`,
+          project.client,
+          project.location,
+          `${project.category || 'property'} in ${project.location || 'Pimpri Chinchwad'}`,
+          `${project.title} price`,
+          `${project.title} floor plan`,
+          project.reraNumber && `${project.title} RERA`,
+          'property in PCMC',
+          `${project.category || 'residential'} property Pune`,
+          'Real Abodes',
+        ].filter(Boolean).join(', ')}
         canonical={`/project/${project.slug}`}
-        ogImage={project.heroImage || project.images[0]?.url}
+        ogImage={project.heroImage || project.images?.[0]?.url}
         structuredData={structuredData || undefined}
       />
       <AnimatePresence mode="wait">

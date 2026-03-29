@@ -238,7 +238,13 @@ export const propertySchema = (project: {
   image?: string;
   location?: string;
   price?: string;
+  priceRange?: string;
   status?: string;
+  category?: string;
+  reraNumber?: string;
+  developer?: string;
+  highlights?: string[];
+  amenitiesCount?: number;
 }) => ({
   '@context': 'https://schema.org',
   '@type': 'RealEstateListing',
@@ -246,21 +252,67 @@ export const propertySchema = (project: {
   description: project.description,
   url: `${BASE_URL}/project/${project.slug}`,
   image: project.image || DEFAULT_OG_IMAGE,
+  // Let Google know this listing is offered by Real Abodes
+  seller: {
+    '@type': 'RealEstateAgent',
+    name: SITE_NAME,
+    url: BASE_URL,
+    telephone: '+91-9175622021',
+  },
   address: {
     '@type': 'PostalAddress',
     addressLocality: project.location || 'Pimpri-Chinchwad',
     addressRegion: 'Maharashtra',
     addressCountry: 'IN',
   },
-  ...(project.price && {
-    offers: {
-      '@type': 'Offer',
-      price: project.price,
-      priceCurrency: 'INR',
-      availability:
-        project.status === 'Available'
-          ? 'https://schema.org/InStock'
-          : 'https://schema.org/PreOrder',
+  // RERA number as a legal identifier — boosts trustworthiness signal
+  ...(project.reraNumber && {
+    identifier: {
+      '@type': 'PropertyValue',
+      name: 'RERA Registration Number',
+      value: project.reraNumber,
     },
   }),
+  // Developer name helps Google connect branded searches to this page
+  ...(project.developer && {
+    additionalProperty: {
+      '@type': 'PropertyValue',
+      name: 'Developer',
+      value: project.developer,
+    },
+  }),
+  // Amenities count as a feature
+  ...(project.amenitiesCount && {
+    amenityFeature: {
+      '@type': 'LocationFeatureSpecification',
+      name: 'Total Amenities',
+      value: project.amenitiesCount,
+    },
+  }),
+  ...(project.priceRange || project.price ? {
+    offers: {
+      '@type': 'Offer',
+      description: project.priceRange || project.price,
+      priceCurrency: 'INR',
+      availability:
+        project.status === 'completed'
+          ? 'https://schema.org/InStock'
+          : 'https://schema.org/PreOrder',
+      seller: { '@type': 'RealEstateAgent', name: SITE_NAME, url: BASE_URL },
+    },
+  } : {}),
+});
+
+/** FAQPage schema – used on Project detail pages with FAQ sections */
+export const faqSchema = (faqs: { question: string; answer: string }[]) => ({
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(faq => ({
+    '@type': 'Question',
+    name: faq.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: faq.answer,
+    },
+  })),
 });
