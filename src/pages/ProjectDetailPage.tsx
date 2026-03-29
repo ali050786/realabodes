@@ -165,6 +165,28 @@ export default function ProjectDetailPage() {
     loadData();
   }, [slug, fetchProjectBySlug]);
 
+  // ── Hooks must be called before any early returns ──────────────────────────
+  // Generate structured data for the project using centralised helpers
+  const structuredData = useMemo(() => {
+    if (!project) return null;
+    return [
+      propertySchema({
+        name: project.title,
+        description: project.fullDescription,
+        slug: project.slug,
+        image: project.heroImage || project.images[0]?.url,
+        location: project.location,
+        price: project.price,
+        status: project.status,
+      }),
+      breadcrumbSchema([
+        { name: 'Home', url: '/' },
+        { name: 'Projects', url: '/projects' },
+        { name: project.title, url: `/project/${project.slug}` },
+      ]),
+    ];
+  }, [project]);
+
   if (isLoading) {
     return (
       <Layout>
@@ -233,27 +255,6 @@ export default function ProjectDetailPage() {
     acc[item.type].push(item);
     return acc;
   }, {} as Record<string, ProximityItem[]>);
-
-  // Generate structured data for the project using centralised helpers
-  const structuredData = useMemo(() => {
-    if (!project) return null;
-    return [
-      propertySchema({
-        name: project.title,
-        description: project.fullDescription,
-        slug: project.slug,
-        image: project.heroImage || project.images[0]?.url,
-        location: project.location,
-        price: project.price,
-        status: project.status,
-      }),
-      breadcrumbSchema([
-        { name: 'Home', url: '/' },
-        { name: 'Projects', url: '/projects' },
-        { name: project.title, url: `/project/${project.slug}` },
-      ]),
-    ];
-  }, [project]);
 
   return (
     <>
